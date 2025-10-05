@@ -1,0 +1,2707 @@
+import React, { useState } from 'react';
+import { BookOpen, Database, Code, Award, User, ChevronRight, ChevronDown, Play, CheckCircle, Menu, X } from 'lucide-react';
+
+const SQLLearningApp = () => {
+  const [activeTab, setActiveTab] = useState('learn');
+  const [expandedSection, setExpandedSection] = useState(null);
+  const [expandedTopic, setExpandedTopic] = useState(null);
+  const [quizMode, setQuizMode] = useState('qa');
+  const [currentQuiz, setCurrentQuiz] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const learningContent = {
+    introduction: {
+      title: "Introduction to Databases",
+      icon: "🎯",
+      topics: {
+        whatAreDBs: {
+          title: "What are Databases?",
+          content: `A database is an organized collection of structured information or data stored electronically in a computer system. Think of it as a digital filing cabinet where information is stored in an organized manner for easy retrieval, management, and updating.
+
+**Real-World Example:**
+Imagine a library with thousands of books. Without organization, finding a specific book would be nearly impossible. Similarly, databases organize data so applications can quickly find, update, and manage information.
+
+**Key Characteristics:**
+• **Persistence**: Data remains stored even after the application closes
+• **Structure**: Data is organized in tables with relationships
+• **Consistency**: Ensures data accuracy through rules and constraints
+• **Concurrency**: Multiple users can access data simultaneously
+• **Security**: Controls who can view or modify data`,
+          examples: [
+            {
+              title: "Simple Database Concept",
+              code: `-- Think of a database as a collection of related tables
+-- Example: Employee Management System
+
+Database: CompanyDB
+├── Employees Table (stores employee information)
+├── Departments Table (stores department details)
+└── Projects Table (stores project information)
+
+-- Each table contains rows (records) and columns (fields)`
+            }
+          ]
+        },
+        whyImportant: {
+          title: "Why Databases are Important",
+          content: `Databases are the backbone of modern applications. They solve critical business problems and enable organizations to operate efficiently.
+
+**1. Data Organization & Structure**
+Without databases, data would be scattered across files, making it difficult to maintain consistency. Databases provide a centralized, structured approach to data management.
+
+**2. Data Integrity & Accuracy**
+Databases enforce rules (constraints) to ensure data remains accurate. For example, an email field can be validated to ensure proper format.
+
+**3. Concurrent Access**
+Multiple users can access and modify data simultaneously without conflicts. Imagine an e-commerce site where thousands of users place orders at the same time.
+
+**4. Data Security**
+Databases provide robust security mechanisms including user authentication, authorization, and encryption to protect sensitive information.
+
+**5. Efficient Data Retrieval**
+With proper indexing and query optimization, databases can retrieve information from millions of records in milliseconds.
+
+**6. Scalability**
+As businesses grow, databases can scale to handle increasing amounts of data and users.
+
+**Real-World Applications:**
+• Banking systems managing millions of transactions daily
+• Social media platforms storing posts, comments, and user data
+• E-commerce sites tracking inventory, orders, and customer information
+• Healthcare systems maintaining patient records
+• Educational platforms managing student information and courses`,
+          examples: []
+        },
+        toolsAndIDEs: {
+          title: "Database Management Tools & IDEs",
+          content: `Various tools help developers and administrators interact with databases efficiently. These tools provide visual interfaces and advanced features for database management.
+
+**Microsoft SQL Server Management Studio (SSMS)**
+The primary tool for MS SQL Server development and administration.
+• Query editor with IntelliSense and syntax highlighting
+• Visual database designer
+• Execution plan analyzer
+• Performance monitoring tools
+• Object explorer for easy navigation
+
+**Azure Data Studio**
+A modern, cross-platform tool for SQL Server and Azure databases.
+• Lightweight and fast
+• Built-in Git integration
+• Extension support
+• Jupyter notebooks integration
+• Works on Windows, Mac, and Linux
+
+**Visual Studio / VS Code with SQL Extensions**
+Integrated development environments with SQL capabilities.
+• SQL Server extension for VS Code
+• Database projects in Visual Studio
+• IntelliSense and code completion
+• Integrated debugging
+
+**Other Popular Tools:**
+• **DBeaver**: Universal database tool supporting multiple databases
+• **DataGrip**: JetBrains IDE for databases
+• **SQLyog**: MySQL-focused tool with MS SQL support
+• **Toad**: Enterprise database management solution
+
+**Choosing the Right Tool:**
+• For beginners: Start with SSMS for comprehensive features
+• For lightweight work: Azure Data Studio
+• For cross-platform: DBeaver or Azure Data Studio
+• For enterprise: SSMS with additional monitoring tools`,
+          examples: []
+        }
+      }
+    },
+    coreConcepts: {
+      title: "Core SQL Concepts",
+      icon: "⚙️",
+      topics: {
+        ddl: {
+          title: "DDL - Data Definition Language",
+          content: `Data Definition Language (DDL) statements are used to define, modify, and remove database structures. These commands affect the schema of the database.
+
+**Key DDL Commands:**
+
+**1. CREATE - Building Database Objects**
+Used to create new databases, tables, indexes, views, and other objects.
+
+**2. ALTER - Modifying Existing Structures**
+Changes the structure of existing database objects without losing data.
+
+**3. DROP - Removing Objects**
+Permanently deletes database objects. Use with caution!
+
+**4. TRUNCATE - Clearing Table Data**
+Removes all rows from a table but keeps the structure intact. Faster than DELETE.
+
+**Important Concepts:**
+• DDL statements are auto-committed (changes are permanent immediately)
+• They affect the metadata/structure, not the data itself
+• Require appropriate permissions (CREATE, ALTER, DROP privileges)
+• Changes are logged in the transaction log`,
+          examples: [
+            {
+              title: "Creating a Database",
+              code: `-- Create a new database for employee management
+CREATE DATABASE CompanyDB;
+
+-- Create with specific settings
+CREATE DATABASE CompanyDB
+ON PRIMARY 
+(
+    NAME = 'CompanyDB_Data',
+    FILENAME = 'C:\\Data\\CompanyDB.mdf',
+    SIZE = 100MB,
+    MAXSIZE = 1GB,
+    FILEGROWTH = 10MB
+)
+LOG ON
+(
+    NAME = 'CompanyDB_Log',
+    FILENAME = 'C:\\Data\\CompanyDB_Log.ldf',
+    SIZE = 50MB,
+    MAXSIZE = 500MB,
+    FILEGROWTH = 5MB
+);
+
+-- Switch to the database
+USE CompanyDB;`
+            },
+            {
+              title: "Creating Tables with Constraints",
+              code: `-- Create Employees table with various constraints
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) UNIQUE NOT NULL,
+    Phone NVARCHAR(15),
+    HireDate DATE NOT NULL DEFAULT GETDATE(),
+    Salary DECIMAL(10,2) CHECK (Salary > 0),
+    DepartmentID INT,
+    ManagerID INT,
+    IsActive BIT DEFAULT 1,
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Emp_Dept FOREIGN KEY (DepartmentID) 
+        REFERENCES Departments(DepartmentID),
+    CONSTRAINT FK_Emp_Manager FOREIGN KEY (ManagerID) 
+        REFERENCES Employees(EmployeeID)
+);
+
+-- Create Departments table
+CREATE TABLE Departments (
+    DepartmentID INT PRIMARY KEY IDENTITY(1,1),
+    DepartmentName NVARCHAR(100) NOT NULL UNIQUE,
+    Location NVARCHAR(100),
+    ManagerID INT
+);`
+            },
+            {
+              title: "ALTER - Modifying Table Structure",
+              code: `-- Add a new column to existing table
+ALTER TABLE Employees
+ADD MiddleName NVARCHAR(50) NULL;
+
+-- Add multiple columns at once
+ALTER TABLE Employees
+ADD 
+    DateOfBirth DATE,
+    Gender CHAR(1),
+    Address NVARCHAR(200);
+
+-- Modify existing column
+ALTER TABLE Employees
+ALTER COLUMN Phone NVARCHAR(20);
+
+-- Add constraint to existing table
+ALTER TABLE Employees
+ADD CONSTRAINT CK_Salary_Range 
+    CHECK (Salary BETWEEN 30000 AND 500000);
+
+-- Drop a constraint
+ALTER TABLE Employees
+DROP CONSTRAINT CK_Salary_Range;
+
+-- Drop a column (be careful - data will be lost!)
+ALTER TABLE Employees
+DROP COLUMN MiddleName;`
+            },
+            {
+              title: "DROP and TRUNCATE",
+              code: `-- DROP - Permanently remove table and all data
+DROP TABLE IF EXISTS TempEmployees;
+
+-- Drop multiple tables
+DROP TABLE TempTable1, TempTable2, TempTable3;
+
+-- TRUNCATE - Remove all rows but keep structure
+TRUNCATE TABLE EmployeeBackup;
+
+-- Difference between DELETE, TRUNCATE, and DROP:
+-- DELETE: Removes rows one by one, can have WHERE clause, slower
+-- TRUNCATE: Removes all rows at once, faster, cannot have WHERE
+-- DROP: Removes entire table structure and data
+
+-- You cannot truncate a table with foreign key references
+-- Solution: Drop foreign key, truncate, then recreate foreign key`
+            }
+          ]
+        },
+        dml: {
+          title: "DML - Data Manipulation Language",
+          content: `Data Manipulation Language (DML) statements are used to retrieve, insert, update, and delete data in database tables. Unlike DDL, DML operations can be rolled back.
+
+**Key DML Commands:**
+
+**1. SELECT - Retrieving Data**
+The most commonly used SQL statement. Retrieves data from one or more tables.
+
+**2. INSERT - Adding New Data**
+Adds new rows to a table.
+
+**3. UPDATE - Modifying Existing Data**
+Changes existing data in one or more rows.
+
+**4. DELETE - Removing Data**
+Removes rows from a table based on conditions.
+
+**5. MERGE - Upsert Operations**
+Combines INSERT, UPDATE, and DELETE in a single statement.
+
+**Important Concepts:**
+• DML operations are part of transactions and can be rolled back
+• Always use WHERE clause with UPDATE/DELETE to avoid affecting all rows
+• DML operations are logged and can impact performance on large datasets
+• Use batch operations for better performance with large data volumes`,
+          examples: [
+            {
+              title: "INSERT - Adding Data",
+              code: `-- Insert single row
+INSERT INTO Employees (FirstName, LastName, Email, HireDate, Salary, DepartmentID)
+VALUES ('PavanKalyan', 'Sahukari', 'pavan@company.com', '2020-01-15', 75000, 1);
+
+-- Insert multiple rows at once (more efficient)
+INSERT INTO Employees (FirstName, LastName, Email, HireDate, Salary, DepartmentID)
+VALUES 
+    ('JeevanKumar', 'Reddy', 'jeevan@company.com', '2020-03-20', 72000, 1),
+    ('Vijay', 'Kumar', 'vijay@company.com', '2020-05-10', 68000, 2),
+    ('Santosh', 'Giri', 'santosh@company.com', '2020-07-01', 70000, 2),
+    ('Ruthvik', 'Sharma', 'ruthvik@company.com', '2021-01-15', 65000, 3);
+
+-- Insert from another table
+INSERT INTO EmployeeBackup (FirstName, LastName, Email, Salary)
+SELECT FirstName, LastName, Email, Salary
+FROM Employees
+WHERE IsActive = 1;
+
+-- Insert with OUTPUT clause to capture inserted values
+INSERT INTO Employees (FirstName, LastName, Email, Salary, DepartmentID)
+OUTPUT INSERTED.EmployeeID, INSERTED.FirstName, INSERTED.CreatedDate
+VALUES ('Dolan', 'Singh', 'dolan@company.com', 71000, 1);`
+            },
+            {
+              title: "SELECT - Retrieving Data",
+              code: `-- Basic SELECT
+SELECT * FROM Employees;
+
+-- Select specific columns
+SELECT FirstName, LastName, Email, Salary 
+FROM Employees;
+
+-- SELECT with WHERE clause
+SELECT FirstName, LastName, Salary
+FROM Employees
+WHERE Salary > 70000 AND IsActive = 1;
+
+-- SELECT with ORDER BY
+SELECT FirstName, LastName, HireDate, Salary
+FROM Employees
+ORDER BY HireDate DESC, Salary DESC;
+
+-- SELECT with TOP
+SELECT TOP 5 FirstName, LastName, Salary
+FROM Employees
+ORDER BY Salary DESC;
+
+-- SELECT with DISTINCT
+SELECT DISTINCT DepartmentID FROM Employees;
+
+-- SELECT with aggregate functions
+SELECT 
+    DepartmentID,
+    COUNT(*) AS EmployeeCount,
+    AVG(Salary) AS AvgSalary,
+    MIN(Salary) AS MinSalary,
+    MAX(Salary) AS MaxSalary,
+    SUM(Salary) AS TotalSalary
+FROM Employees
+GROUP BY DepartmentID
+HAVING COUNT(*) > 5;
+
+-- SELECT with LIKE pattern matching
+SELECT FirstName, LastName, Email
+FROM Employees
+WHERE Email LIKE '%@company.com'
+   OR FirstName LIKE 'P%';`
+            },
+            {
+              title: "UPDATE - Modifying Data",
+              code: `-- Update single column
+UPDATE Employees
+SET Salary = 80000
+WHERE EmployeeID = 1;
+
+-- Update multiple columns
+UPDATE Employees
+SET 
+    Salary = Salary * 1.10,  -- 10% raise
+    IsActive = 1
+WHERE DepartmentID = 1 AND HireDate < '2021-01-01';
+
+-- Update with JOIN
+UPDATE e
+SET e.Salary = e.Salary * 1.15
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE d.DepartmentName = 'IT' AND e.Salary < 80000;
+
+-- Update with subquery
+UPDATE Employees
+SET Salary = (SELECT AVG(Salary) FROM Employees WHERE DepartmentID = 1)
+WHERE EmployeeID = 5;
+
+-- Update with OUTPUT clause
+UPDATE Employees
+SET Salary = Salary * 1.10
+OUTPUT 
+    DELETED.EmployeeID,
+    DELETED.Salary AS OldSalary,
+    INSERTED.Salary AS NewSalary
+WHERE DepartmentID = 2;`
+            },
+            {
+              title: "DELETE - Removing Data",
+              code: `-- Delete with WHERE clause (ALWAYS use WHERE unless you want to delete all!)
+DELETE FROM Employees
+WHERE IsActive = 0 AND HireDate < '2015-01-01';
+
+-- Delete with JOIN
+DELETE e
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE d.DepartmentName = 'Closed Department';
+
+-- Delete with subquery
+DELETE FROM Employees
+WHERE EmployeeID IN (
+    SELECT EmployeeID 
+    FROM EmployeePerformance 
+    WHERE Rating < 2
+);
+
+-- Delete with OUTPUT
+DELETE FROM Employees
+OUTPUT DELETED.*
+WHERE EmployeeID = 100;
+
+-- Delete with TOP (useful for batch deletions)
+DELETE TOP (1000) FROM EmployeeArchive
+WHERE ArchiveDate < DATEADD(YEAR, -5, GETDATE());`
+            },
+            {
+              title: "MERGE - Upsert Operations",
+              code: `-- MERGE: Insert if not exists, Update if exists
+MERGE INTO Employees AS Target
+USING EmployeesStaging AS Source
+ON Target.Email = Source.Email
+WHEN MATCHED THEN
+    UPDATE SET 
+        Target.FirstName = Source.FirstName,
+        Target.LastName = Source.LastName,
+        Target.Salary = Source.Salary
+WHEN NOT MATCHED THEN
+    INSERT (FirstName, LastName, Email, Salary, DepartmentID)
+    VALUES (Source.FirstName, Source.LastName, Source.Email, Source.Salary, Source.DepartmentID)
+WHEN NOT MATCHED BY SOURCE THEN
+    DELETE;
+
+-- MERGE with OUTPUT
+MERGE INTO Employees AS Target
+USING (VALUES 
+    ('Vennala', 'Patel', 'vennala@company.com', 73000, 3),
+    ('Sree', 'Krishna', 'sree@company.com', 76000, 2)
+) AS Source (FirstName, LastName, Email, Salary, DepartmentID)
+ON Target.Email = Source.Email
+WHEN MATCHED THEN
+    UPDATE SET Target.Salary = Source.Salary
+WHEN NOT MATCHED THEN
+    INSERT VALUES (Source.FirstName, Source.LastName, Source.Email, Source.Salary, Source.DepartmentID)
+OUTPUT $action, INSERTED.*, DELETED.*;`
+            }
+          ]
+        },
+        tcl: {
+          title: "TCL - Transaction Control Language",
+          content: `Transaction Control Language (TCL) commands manage transactions in the database. A transaction is a logical unit of work that must be completed entirely or not at all (ACID properties).
+
+**ACID Properties:**
+• **Atomicity**: All operations complete successfully or none do
+• **Consistency**: Database remains in a consistent state
+• **Isolation**: Concurrent transactions don't interfere with each other
+• **Durability**: Committed changes are permanent
+
+**Key TCL Commands:**
+
+**1. BEGIN TRANSACTION (or BEGIN TRAN)**
+Marks the starting point of a transaction.
+
+**2. COMMIT**
+Saves all changes made in the current transaction permanently.
+
+**3. ROLLBACK**
+Undoes all changes made in the current transaction.
+
+**4. SAVE TRANSACTION (SAVEPOINT)**
+Creates a point within a transaction to which you can later roll back.
+
+**Transaction Isolation Levels:**
+• READ UNCOMMITTED: Lowest isolation, allows dirty reads
+• READ COMMITTED: Default, prevents dirty reads
+• REPEATABLE READ: Prevents non-repeatable reads
+• SERIALIZABLE: Highest isolation, prevents phantom reads
+• SNAPSHOT: Uses row versioning for consistency`,
+          examples: [
+            {
+              title: "Basic Transaction Example",
+              code: `-- Simple transaction
+BEGIN TRANSACTION;
+
+    UPDATE Employees
+    SET Salary = Salary * 1.10
+    WHERE DepartmentID = 1;
+    
+    INSERT INTO SalaryHistory (EmployeeID, OldSalary, NewSalary, ChangeDate)
+    SELECT EmployeeID, Salary / 1.10, Salary, GETDATE()
+    FROM Employees
+    WHERE DepartmentID = 1;
+
+COMMIT; -- Save changes
+
+-- Transaction with error handling
+BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Transfer operation
+        UPDATE Accounts
+        SET Balance = Balance - 1000
+        WHERE AccountID = 1;
+        
+        UPDATE Accounts
+        SET Balance = Balance + 1000
+        WHERE AccountID = 2;
+        
+        COMMIT; -- Success
+        PRINT 'Transfer completed successfully';
+    END TRY
+    BEGIN CATCH
+        ROLLBACK; -- Undo changes on error
+        PRINT 'Error occurred: ' + ERROR_MESSAGE();
+    END CATCH;`
+            },
+            {
+              title: "SAVEPOINT Example",
+              code: `-- Using savepoints for partial rollback
+BEGIN TRANSACTION;
+
+    -- Update salaries
+    UPDATE Employees SET Salary = Salary * 1.05;
+    SAVE TRANSACTION SavePoint1;
+    
+    -- Update department
+    UPDATE Employees SET DepartmentID = 2 WHERE EmployeeID = 1;
+    SAVE TRANSACTION SavePoint2;
+    
+    -- If there's an issue, rollback to SavePoint1
+    -- This keeps salary changes but undoes department change
+    ROLLBACK TRANSACTION SavePoint2;
+    
+COMMIT;
+
+-- Another example with multiple savepoints
+BEGIN TRANSACTION;
+
+    INSERT INTO Employees (FirstName, LastName, Email, Salary, DepartmentID)
+    VALUES ('Hashini', 'Reddy', 'hashini@company.com', 68000, 3);
+    SAVE TRANSACTION AfterInsert;
+    
+    UPDATE Employees SET Salary = Salary * 1.08;
+    SAVE TRANSACTION AfterUpdate;
+    
+    DELETE FROM Employees WHERE IsActive = 0;
+    
+    -- If delete fails, rollback only delete
+    IF @@ROWCOUNT > 100 -- Too many rows deleted
+        ROLLBACK TRANSACTION AfterUpdate;
+    
+COMMIT;`
+            },
+            {
+              title: "Transaction Isolation Levels",
+              code: `-- Set transaction isolation level
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+BEGIN TRANSACTION;
+    SELECT * FROM Employees WHERE DepartmentID = 1;
+COMMIT;
+
+-- READ UNCOMMITTED (allows dirty reads)
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+BEGIN TRANSACTION;
+    SELECT * FROM Employees; -- Can read uncommitted data
+COMMIT;
+
+-- REPEATABLE READ (prevents non-repeatable reads)
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN TRANSACTION;
+    SELECT * FROM Employees WHERE Salary > 70000;
+    -- Other transactions can't modify these rows
+    WAITFOR DELAY '00:00:05'; -- Wait 5 seconds
+    SELECT * FROM Employees WHERE Salary > 70000; -- Same result
+COMMIT;
+
+-- SERIALIZABLE (highest isolation)
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN TRANSACTION;
+    SELECT * FROM Employees WHERE DepartmentID = 1;
+    -- No other transaction can insert/update/delete in this range
+COMMIT;
+
+-- SNAPSHOT isolation (optimistic concurrency)
+ALTER DATABASE CompanyDB SET ALLOW_SNAPSHOT_ISOLATION ON;
+SET TRANSACTION ISOLATION LEVEL SNAPSHOT;
+BEGIN TRANSACTION;
+    SELECT * FROM Employees;
+    -- Reads committed data as of transaction start
+COMMIT;`
+            },
+            {
+              title: "Checking Transaction State",
+              code: `-- Check if inside a transaction
+SELECT @@TRANCOUNT AS ActiveTransactions;
+
+-- Practical example with transaction count
+IF @@TRANCOUNT > 0
+    ROLLBACK; -- Rollback any open transaction
+
+BEGIN TRANSACTION;
+    PRINT 'Transaction count: ' + CAST(@@TRANCOUNT AS VARCHAR);
+    
+    BEGIN TRANSACTION; -- Nested transaction
+        PRINT 'Transaction count: ' + CAST(@@TRANCOUNT AS VARCHAR);
+    COMMIT;
+    
+    PRINT 'Transaction count: ' + CAST(@@TRANCOUNT AS VARCHAR);
+COMMIT;
+
+-- Named transactions for better tracking
+BEGIN TRANSACTION SalaryUpdate
+    UPDATE Employees SET Salary = Salary * 1.10;
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION SalaryUpdate;
+    ELSE
+        COMMIT TRANSACTION SalaryUpdate;`
+            }
+          ]
+        },
+        dataTypes: {
+          title: "Data Types in MS SQL Server",
+          content: `Understanding data types is crucial for database design and performance. Choosing the right data type ensures data integrity, optimizes storage, and improves query performance.
+
+**Numeric Data Types:**
+• **INT**: 4-byte integer (-2.1B to 2.1B)
+• **BIGINT**: 8-byte integer (very large numbers)
+• **SMALLINT**: 2-byte integer (-32K to 32K)
+• **TINYINT**: 1-byte integer (0 to 255)
+• **DECIMAL(p,s)**: Fixed precision and scale
+• **NUMERIC**: Functionally same as DECIMAL
+• **FLOAT**: Approximate numeric (scientific calculations)
+• **REAL**: Smaller approximate numeric
+
+**String Data Types:**
+• **CHAR(n)**: Fixed-length character string (pads with spaces)
+• **VARCHAR(n)**: Variable-length character string
+• **NCHAR(n)**: Fixed-length Unicode string
+• **NVARCHAR(n)**: Variable-length Unicode string
+• **VARCHAR(MAX)**: Up to 2GB of data
+• **TEXT**: Legacy type, use VARCHAR(MAX) instead
+
+**Date and Time:**
+• **DATE**: Stores only date (YYYY-MM-DD)
+• **TIME**: Stores only time (HH:MM:SS.mmm)
+• **DATETIME**: Date and time (1753-9999)
+• **DATETIME2**: Improved datetime with more precision
+• **SMALLDATETIME**: Less precise, smaller storage
+• **DATETIMEOFFSET**: Includes timezone offset
+
+**Binary Data Types:**
+• **BINARY(n)**: Fixed-length binary
+• **VARBINARY(n)**: Variable-length binary
+• **VARBINARY(MAX)**: Up to 2GB
+• **IMAGE**: Legacy, use VARBINARY(MAX)
+
+**Other Important Types:**
+• **BIT**: Boolean (0 or 1)
+• **UNIQUEIDENTIFIER**: GUID (globally unique identifier)
+• **XML**: Store XML documents
+• **JSON**: Store JSON data (validated as NVARCHAR)
+• **GEOGRAPHY/GEOMETRY**: Spatial data`,
+          examples: [
+            {
+              title: "Choosing the Right Data Type",
+              code: `-- Employee table with appropriate data types
+CREATE TABLE Employees (
+    -- Primary key: INT with IDENTITY
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
+    
+    -- Names: NVARCHAR for international characters
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    
+    -- Email: VARCHAR (no need for Unicode)
+    Email VARCHAR(100) NOT NULL,
+    
+    -- Phone: VARCHAR (may contain +, -, spaces)
+    Phone VARCHAR(20),
+    
+    -- Dates: Use DATE for birthdate, DATETIME2 for precise timestamps
+    DateOfBirth DATE,
+    HireDate DATE NOT NULL,
+    LastModified DATETIME2 DEFAULT GETDATE(),
+    
+    -- Salary: DECIMAL for exact financial calculations
+    Salary DECIMAL(10,2) CHECK (Salary >= 0),
+    
+    -- Status flags: BIT
+    IsActive BIT DEFAULT 1,
+    IsManager BIT DEFAULT 0,
+    
+    -- Department: INT (foreign key)
+    DepartmentID INT,
+    
+    -- Resume/Documents: VARBINARY(MAX) for files
+    Resume VARBINARY(MAX),
+    
+    -- Profile picture: VARBINARY(MAX) or store file path as VARCHAR
+    ProfilePicturePath VARCHAR(500),
+    
+    -- Notes: NVARCHAR(MAX) for large text
+    Notes NVARCHAR(MAX),
+    
+    -- Unique identifier for external systems
+    ExternalID UNIQUEIDENTIFIER DEFAULT NEWID()
+);`
+            },
+            {
+              title: "Data Type Conversions and CAST/CONVERT",
+              code: `-- CAST: ANSI standard way to convert
+SELECT 
+    CAST(Salary AS INT) AS SalaryInt,
+    CAST(HireDate AS VARCHAR(20)) AS HireDateString,
+    CAST('123.45' AS DECIMAL(10,2)) AS NumericValue
+FROM Employees;
+
+-- CONVERT: SQL Server specific with style options
+SELECT 
+    CONVERT(VARCHAR(20), HireDate, 101) AS MM_DD_YYYY,
+    CONVERT(VARCHAR(20), HireDate, 103) AS DD_MM_YYYY,
+    CONVERT(VARCHAR(20), GETDATE(), 120) AS YYYY_MM_DD_HH_MM_SS
+FROM Employees;
+
+-- Implicit vs Explicit conversion
+-- Implicit (automatic)
+SELECT * FROM Employees WHERE EmployeeID = '5'; -- '5' converted to INT
+
+-- Explicit (recommended for clarity)
+SELECT * FROM Employees WHERE EmployeeID = CAST('5' AS INT);
+
+-- TRY_CAST and TRY_CONVERT (returns NULL on failure)
+SELECT 
+    TRY_CAST('Not a number' AS INT) AS Result1, -- Returns NULL
+    TRY_CONVERT(INT, 'Not a number') AS Result2; -- Returns NULL
+
+-- Practical example: Safe conversion
+SELECT 
+    FirstName,
+    LastName,
+    CASE 
+        WHEN TRY_CAST(Phone AS BIGINT) IS NOT NULL 
+        THEN 'Valid numeric phone'
+        ELSE 'Invalid phone format'
+    END AS PhoneValidation
+FROM Employees;`
+            },
+            {
+              title: "Working with Date and Time",
+              code: `-- Current date and time functions
+SELECT 
+    GETDATE() AS CurrentDateTime,
+    GETUTCDATE() AS CurrentUTCDateTime,
+    SYSDATETIME() AS HighPrecisionDateTime,
+    CURRENT_TIMESTAMP AS CurrentTimestamp;
+
+-- Date manipulation
+SELECT 
+    DATEADD(YEAR, 1, HireDate) AS OneYearLater,
+    DATEADD(MONTH, -6, HireDate) AS SixMonthsAgo,
+    DATEDIFF(YEAR, HireDate, GETDATE()) AS YearsEmployed,
+    DATEDIFF(DAY, HireDate, GETDATE()) AS DaysEmployed,
+    EOMONTH(HireDate) AS EndOfHireMonth
+FROM Employees;
+
+-- Extracting date parts
+SELECT 
+    YEAR(HireDate) AS HireYear,
+    MONTH(HireDate) AS HireMonth,
+    DAY(HireDate) AS HireDay,
+    DATEPART(QUARTER, HireDate) AS HireQuarter,
+    DATENAME(WEEKDAY, HireDate) AS HireDayName
+FROM Employees;
+
+-- Date formatting
+SELECT 
+    FORMAT(HireDate, 'dd-MMM-yyyy') AS FormattedDate1,
+    FORMAT(HireDate, 'MM/dd/yyyy') AS FormattedDate2,
+    FORMAT(GETDATE(), 'yyyy-MM-dd HH:mm:ss') AS ISOFormat
+FROM Employees;
+
+-- Date validation and business logic
+SELECT 
+    FirstName,
+    LastName,
+    HireDate,
+    CASE 
+        WHEN DATEDIFF(YEAR, HireDate, GETDATE()) >= 5 
+        THEN 'Eligible for bonus'
+        ELSE 'Not eligible'
+    END AS BonusEligibility
+FROM Employees;`
+            },
+            {
+              title: "String Operations",
+              code: `-- String concatenation
+SELECT 
+    FirstName + ' ' + LastName AS FullName,
+    CONCAT(FirstName, ' ', LastName) AS FullName2,
+    CONCAT_WS(' ', FirstName, LastName, Email) AS ConcatWithSeparator
+FROM Employees;
+
+-- String functions
+SELECT 
+    UPPER(FirstName) AS UpperCase,
+    LOWER(LastName) AS LowerCase,
+    LEN(Email) AS EmailLength,
+    LEFT(FirstName, 3) AS First3Chars,
+    RIGHT(LastName, 3) AS Last3Chars,
+    SUBSTRING(Email, 1, CHARINDEX('@', Email)-1) AS EmailUsername,
+    REPLACE(Phone, '-', '') AS PhoneNoHyphens,
+    TRIM(FirstName) AS TrimmedName,
+    REVERSE(FirstName) AS ReversedName
+FROM Employees;
+
+-- String searching
+SELECT FirstName, LastName, Email
+FROM Employees
+WHERE Email LIKE '%@company.com'
+   OR CHARINDEX('kumar', LastName) > 0
+   OR PATINDEX('%[0-9]%', Phone) > 0; -- Contains number
+
+-- String manipulation for reporting
+SELECT 
+    UPPER(LEFT(FirstName, 1)) + LOWER(SUBSTRING(FirstName, 2, LEN(FirstName))) AS ProperCase,
+    REPLICATE('*', LEN(Phone) - 4) + RIGHT(Phone, 4) AS MaskedPhone,
+    STUFF(Email, 2, CHARINDEX('@', Email)-2, '***') AS MaskedEmail
+FROM Employees;`
+            }
+          ]
+        },
+        operators: {
+          title: "SQL Operators",
+          content: `Operators are symbols that perform operations on one or more operands. Understanding operators is essential for writing effective queries and implementing business logic.
+
+**Arithmetic Operators:**
+• **+**: Addition
+• **-**: Subtraction
+• **\***: Multiplication
+• **/**: Division
+• **%**: Modulo (remainder)
+
+**Comparison Operators:**
+• **=**: Equal to
+• **<>** or **!=**: Not equal to
+• **>**: Greater than
+• **<**: Less than
+• **>=**: Greater than or equal to
+• **<=**: Less than or equal to
+
+**Logical Operators:**
+• **AND**: Both conditions must be true
+• **OR**: At least one condition must be true
+• **NOT**: Negates a condition
+• **IN**: Value exists in a list
+• **BETWEEN**: Value is within a range
+• **LIKE**: Pattern matching
+• **IS NULL**: Checks for NULL values
+
+**Bitwise Operators:**
+• **&**: Bitwise AND
+• **|**: Bitwise OR
+• **^**: Bitwise XOR
+
+**String Operators:**
+• **+**: Concatenation
+• **LIKE**: Pattern matching with wildcards (%, _)
+
+**Set Operators:**
+• **UNION**: Combines results, removes duplicates
+• **UNION ALL**: Combines results, keeps duplicates
+• **INTERSECT**: Returns common rows
+• **EXCEPT**: Returns rows from first query not in second`,
+          examples: [
+            {
+              title: "Arithmetic Operators",
+              code: `-- Basic arithmetic in SELECT
+SELECT 
+    FirstName,
+    Salary,
+    Salary * 12 AS AnnualSalary,
+    Salary * 1.10 AS SalaryAfterRaise,
+    Salary / 12 AS MonthlySalary,
+    Salary % 1000 AS Remainder
+FROM Employees;
+
+-- Using arithmetic in WHERE clause
+SELECT FirstName, LastName, Salary
+FROM Employees
+WHERE (Salary * 12) > 800000;
+
+-- Practical example: Calculate bonus
+SELECT 
+    FirstName,
+    LastName,
+    Salary,
+    CASE 
+        WHEN Salary > 80000 THEN Salary * 0.15
+        WHEN Salary > 60000 THEN Salary * 0.10
+        ELSE Salary * 0.05
+    END AS Bonus,
+    Salary + (Salary * 0.10) AS TotalCompensation
+FROM Employees;
+
+-- Division with NULL handling
+SELECT 
+    DepartmentID,
+    SUM(Salary) AS TotalSalary,
+    COUNT(*) AS EmployeeCount,
+    SUM(Salary) / NULLIF(COUNT(*), 0) AS AvgSalary
+FROM Employees
+GROUP BY DepartmentID;`
+            },
+            {
+              title: "Comparison and Logical Operators",
+              code: `-- Comparison operators
+SELECT FirstName, LastName, Salary
+FROM Employees
+WHERE Salary >= 70000
+  AND Salary <= 90000
+  AND IsActive = 1;
+
+-- Using NOT
+SELECT FirstName, LastName, DepartmentID
+FROM Employees
+WHERE NOT (DepartmentID = 1 OR DepartmentID = 2);
+
+-- Using IN operator (cleaner than multiple ORs)
+SELECT FirstName, LastName, DepartmentID
+FROM Employees
+WHERE DepartmentID IN (1, 2, 3, 4);
+
+-- NOT IN
+SELECT FirstName, LastName
+FROM Employees
+WHERE DepartmentID NOT IN (
+    SELECT DepartmentID FROM Departments WHERE Location = 'Remote'
+);
+
+-- BETWEEN operator
+SELECT FirstName, LastName, HireDate
+FROM Employees
+WHERE HireDate BETWEEN '2020-01-01' AND '2021-12-31';
+
+-- Combining multiple conditions
+SELECT FirstName, LastName, Salary, HireDate
+FROM Employees
+WHERE (Salary > 70000 AND DepartmentID = 1)
+   OR (Salary > 60000 AND HireDate < '2020-01-01')
+   AND IsActive = 1;`
+            },
+            {
+              title: "NULL Handling and IS NULL",
+              code: `-- IS NULL and IS NOT NULL
+SELECT FirstName, LastName, ManagerID
+FROM Employees
+WHERE ManagerID IS NULL; -- Top-level employees
+
+SELECT FirstName, LastName, Phone
+FROM Employees
+WHERE Phone IS NOT NULL;
+
+-- ISNULL function (replaces NULL with default)
+SELECT 
+    FirstName,
+    LastName,
+    ISNULL(Phone, 'No phone') AS Phone,
+    ISNULL(ManagerID, 0) AS ManagerID
+FROM Employees;
+
+-- COALESCE (returns first non-NULL value)
+SELECT 
+    FirstName,
+    LastName,
+    COALESCE(Phone, Email, 'No contact') AS Contact
+FROM Employees;
+
+-- NULLIF (returns NULL if two values are equal)
+SELECT 
+    FirstName,
+    Salary,
+    Salary / NULLIF(DATEDIFF(MONTH, HireDate, GETDATE()), 0) AS SalaryPerMonth
+FROM Employees;
+
+-- NULL in calculations (NULL + anything = NULL)
+SELECT 
+    FirstName,
+    Salary,
+    Salary + ManagerID AS WrongCalculation, -- NULL if ManagerID is NULL
+    Salary + ISNULL(ManagerID, 0) AS CorrectCalculation
+FROM Employees;`
+            },
+            {
+              title: "LIKE Operator and Pattern Matching",
+              code: `-- Basic LIKE patterns
+-- % = any sequence of characters
+-- _ = single character
+-- [] = any character in brackets
+-- [^] = any character NOT in brackets
+
+-- Starts with 'P'
+SELECT FirstName, LastName
+FROM Employees
+WHERE FirstName LIKE 'P%';
+
+-- Ends with 'kumar'
+SELECT FirstName, LastName
+FROM Employees
+WHERE LastName LIKE '%kumar';
+
+-- Contains 'an'
+SELECT FirstName, LastName
+FROM Employees
+WHERE FirstName LIKE '%an%';
+
+-- Second letter is 'a'
+SELECT FirstName, LastName
+FROM Employees
+WHERE FirstName LIKE '_a%';
+
+-- Starts with P, J, or V
+SELECT FirstName, LastName
+FROM Employees
+WHERE FirstName LIKE '[PJV]%';
+
+-- Does NOT start with P, J, or V
+SELECT FirstName, LastName
+FROM Employees
+WHERE FirstName LIKE '[^PJV]%';
+
+-- Phone format validation
+SELECT FirstName, Phone
+FROM Employees
+WHERE Phone LIKE '[0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]';
+
+-- Email validation
+SELECT FirstName, Email
+FROM Employees
+WHERE Email LIKE '%_@__%.__%';
+
+-- Escape special characters
+SELECT * FROM Products
+WHERE ProductName LIKE '%10[%]%'; -- Search for '10%'`
+            },
+            {
+              title: "Set Operators - UNION, INTERSECT, EXCEPT",
+              code: `-- UNION: Combine results from multiple queries (removes duplicates)
+SELECT FirstName, LastName, 'Employee' AS Type
+FROM Employees
+WHERE DepartmentID = 1
+UNION
+SELECT FirstName, LastName, 'Manager' AS Type
+FROM Employees
+WHERE ManagerID IS NULL;
+
+-- UNION ALL: Keep duplicates (faster)
+SELECT FirstName, LastName FROM Employees WHERE DepartmentID = 1
+UNION ALL
+SELECT FirstName, LastName FROM Employees WHERE DepartmentID = 2;
+
+-- INTERSECT: Returns only rows that appear in both queries
+SELECT Email FROM Employees
+INTERSECT
+SELECT Email FROM ActiveUsers;
+
+-- EXCEPT: Returns rows from first query NOT in second query
+SELECT Email FROM Employees
+EXCEPT
+SELECT Email FROM InactiveUsers;
+
+-- Practical example: Find employees in multiple departments
+SELECT EmployeeID, FirstName, LastName
+FROM Employees
+WHERE DepartmentID = 1
+INTERSECT
+SELECT e.EmployeeID, e.FirstName, e.LastName
+FROM Employees e
+INNER JOIN ProjectAssignments p ON e.EmployeeID = p.EmployeeID
+WHERE p.DepartmentID = 2;
+
+-- Complex UNION with ORDER BY
+SELECT FirstName, LastName, Salary, 'High' AS SalaryBracket
+FROM Employees WHERE Salary > 80000
+UNION
+SELECT FirstName, LastName, Salary, 'Medium'
+FROM Employees WHERE Salary BETWEEN 60000 AND 80000
+UNION
+SELECT FirstName, LastName, Salary, 'Low'
+FROM Employees WHERE Salary < 60000
+ORDER BY Salary DESC;`
+            }
+          ]
+        },
+        constraints: {
+          title: "SQL Constraints",
+          content: `Constraints are rules enforced on data columns to ensure data integrity and accuracy. They prevent invalid data from being entered into the database.
+
+**Types of Constraints:**
+
+**1. PRIMARY KEY**
+• Uniquely identifies each record in a table
+• Cannot contain NULL values
+• Each table can have only one primary key
+• Can be a single column or combination of columns (composite key)
+
+**2. FOREIGN KEY**
+• Links two tables together
+• References PRIMARY KEY in another table
+• Enforces referential integrity
+• Can have multiple foreign keys in a table
+
+**3. UNIQUE**
+• Ensures all values in a column are different
+• Can have NULL values (unlike PRIMARY KEY)
+• Can have multiple UNIQUE constraints per table
+
+**4. NOT NULL**
+• Ensures a column cannot have NULL values
+• Must be specified at column level
+
+**5. CHECK**
+• Ensures values in a column meet a specific condition
+• Can reference other columns in the same row
+
+**6. DEFAULT**
+• Provides a default value when none is specified
+• Automatically inserted during INSERT
+
+**Why Constraints Matter:**
+• Maintain data accuracy and consistency
+• Prevent orphaned records
+• Enforce business rules at database level
+• Improve data quality
+• Self-documenting database structure`,
+          examples: [
+            {
+              title: "PRIMARY KEY Constraint",
+              code: `-- Single column primary key
+CREATE TABLE Departments (
+    DepartmentID INT PRIMARY KEY,
+    DepartmentName NVARCHAR(100) NOT NULL
+);
+
+-- Primary key with IDENTITY (auto-increment)
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL
+);
+
+-- Composite primary key (combination of columns)
+CREATE TABLE ProjectAssignments (
+    EmployeeID INT,
+    ProjectID INT,
+    AssignedDate DATE,
+    PRIMARY KEY (EmployeeID, ProjectID)
+);
+
+-- Named primary key constraint
+CREATE TABLE Products (
+    ProductID INT,
+    ProductName NVARCHAR(100),
+    CONSTRAINT PK_Products PRIMARY KEY (ProductID)
+);
+
+-- Add primary key to existing table
+ALTER TABLE Suppliers
+ADD CONSTRAINT PK_Suppliers PRIMARY KEY (SupplierID);
+
+-- Drop primary key
+ALTER TABLE Suppliers
+DROP CONSTRAINT PK_Suppliers;`
+            },
+            {
+              title: "FOREIGN KEY Constraint",
+              code: `-- Foreign key referencing another table
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    DepartmentID INT,
+    CONSTRAINT FK_Emp_Dept FOREIGN KEY (DepartmentID)
+        REFERENCES Departments(DepartmentID)
+);
+
+-- Foreign key with ON DELETE and ON UPDATE actions
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    OrderDate DATE,
+    CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerID)
+        REFERENCES Customers(CustomerID)
+        ON DELETE CASCADE  -- Delete orders when customer is deleted
+        ON UPDATE CASCADE  -- Update orders when customer ID changes
+);
+
+-- Different referential actions:
+-- NO ACTION: Prevents deletion/update (default)
+-- CASCADE: Automatically delete/update child records
+-- SET NULL: Set foreign key to NULL
+-- SET DEFAULT: Set foreign key to default value
+
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    ManagerID INT,
+    CONSTRAINT FK_Emp_Manager FOREIGN KEY (ManagerID)
+        REFERENCES Employees(EmployeeID)
+        ON DELETE NO ACTION  -- Cannot delete if employee has reports
+);
+
+-- Self-referencing foreign key
+CREATE TABLE Categories (
+    CategoryID INT PRIMARY KEY,
+    CategoryName NVARCHAR(50),
+    ParentCategoryID INT,
+    CONSTRAINT FK_Category_Parent FOREIGN KEY (ParentCategoryID)
+        REFERENCES Categories(CategoryID)
+);
+
+-- Add foreign key to existing table
+ALTER TABLE Employees
+ADD CONSTRAINT FK_Emp_Dept 
+FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID);`
+            },
+            {
+              title: "UNIQUE, NOT NULL, and CHECK Constraints",
+              code: `-- UNIQUE constraint
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    Email NVARCHAR(100) UNIQUE NOT NULL,  -- Email must be unique
+    Phone NVARCHAR(15) UNIQUE,  -- Phone can be NULL but must be unique
+    SSN CHAR(11),
+    CONSTRAINT UQ_SSN UNIQUE (SSN)
+);
+
+-- NOT NULL constraint
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    ProductName NVARCHAR(100) NOT NULL,  -- Required field
+    Price DECIMAL(10,2) NOT NULL,
+    Description NVARCHAR(500)  -- Optional field
+);
+
+-- CHECK constraint - single column
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    FirstName NVARCHAR(50) NOT NULL,
+    Age INT CHECK (Age >= 18 AND Age <= 65),
+    Salary DECIMAL(10,2) CHECK (Salary > 0),
+    Email NVARCHAR(100) CHECK (Email LIKE '%@%.%')
+);
+
+-- CHECK constraint - multiple columns
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    OrderDate DATE NOT NULL,
+    ShipDate DATE,
+    Quantity INT CHECK (Quantity > 0),
+    CONSTRAINT CK_Date_Logic CHECK (ShipDate >= OrderDate)
+);
+
+-- Named CHECK constraints for better management
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    Salary DECIMAL(10,2),
+    Commission DECIMAL(10,2),
+    CONSTRAINT CK_Salary_Range CHECK (Salary BETWEEN 30000 AND 500000),
+    CONSTRAINT CK_Commission_Percent CHECK (Commission <= Salary * 0.30)
+);
+
+-- Add constraints to existing table
+ALTER TABLE Employees
+ADD CONSTRAINT CK_Age CHECK (Age >= 18);
+
+ALTER TABLE Products
+ALTER COLUMN ProductName NVARCHAR(100) NOT NULL;`
+            },
+            {
+              title: "DEFAULT Constraint",
+              code: `-- DEFAULT with constant values
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    IsActive BIT DEFAULT 1,  -- Default to active
+    HireDate DATE DEFAULT GETDATE(),  -- Default to today
+    Status NVARCHAR(20) DEFAULT 'Active',
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    CreatedBy NVARCHAR(50) DEFAULT SUSER_NAME()
+);
+
+-- INSERT without specifying default columns
+INSERT INTO Employees (FirstName, LastName)
+VALUES ('PavanKalyan', 'Sahukari');
+-- IsActive will be 1, HireDate will be today, Status will be 'Active'
+
+-- DEFAULT with functions
+CREATE TABLE AuditLog (
+    LogID INT PRIMARY KEY IDENTITY,
+    LogMessage NVARCHAR(500),
+    LogDate DATETIME DEFAULT GETDATE(),
+    LogUser NVARCHAR(100) DEFAULT SYSTEM_USER,
+    ServerName NVARCHAR(100) DEFAULT @@SERVERNAME
+);
+
+-- Named default constraint
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    ProductName NVARCHAR(100),
+    Price DECIMAL(10,2),
+    CONSTRAINT DF_Products_Price DEFAULT 0.00 FOR Price
+);
+
+-- Add default to existing column
+ALTER TABLE Employees
+ADD CONSTRAINT DF_Emp_Status DEFAULT 'Active' FOR Status;
+
+-- Drop default constraint
+ALTER TABLE Employees
+DROP CONSTRAINT DF_Emp_Status;
+
+-- Override default value
+INSERT INTO Employees (FirstName, LastName, IsActive, HireDate)
+VALUES ('JeevanKumar', 'Reddy', 0, '2020-01-15');`
+            },
+            {
+              title: "Working with Constraints - Practical Examples",
+              code: `-- View all constraints on a table
+SELECT 
+    CONSTRAINT_NAME,
+    CONSTRAINT_TYPE,
+    TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+WHERE TABLE_NAME = 'Employees';
+
+-- Disable and enable constraints (useful for bulk operations)
+-- Disable foreign key
+ALTER TABLE Employees NOCHECK CONSTRAINT FK_Emp_Dept;
+
+-- Re-enable foreign key
+ALTER TABLE Employees CHECK CONSTRAINT FK_Emp_Dept;
+
+-- Disable all constraints on a table
+ALTER TABLE Employees NOCHECK CONSTRAINT ALL;
+
+-- Re-enable with validation
+ALTER TABLE Employees WITH CHECK CHECK CONSTRAINT ALL;
+
+-- Find foreign key dependencies
+SELECT 
+    fk.name AS ForeignKey,
+    OBJECT_NAME(fk.parent_object_id) AS TableName,
+    COL_NAME(fc.parent_object_id, fc.parent_column_id) AS ColumnName,
+    OBJECT_NAME(fk.referenced_object_id) AS ReferencedTable,
+    COL_NAME(fc.referenced_object_id, fc.referenced_column_id) AS ReferencedColumn
+FROM sys.foreign_keys fk
+INNER JOIN sys.foreign_key_columns fc ON fk.object_id = fc.constraint_object_id
+WHERE OBJECT_NAME(fk.parent_object_id) = 'Employees';
+
+-- Comprehensive table with all constraint types
+CREATE TABLE CompleteExample (
+    ID INT PRIMARY KEY IDENTITY(1,1),
+    Email NVARCHAR(100) UNIQUE NOT NULL,
+    Age INT CHECK (Age >= 18),
+    Salary DECIMAL(10,2) CHECK (Salary > 0) DEFAULT 50000,
+    DepartmentID INT,
+    Status NVARCHAR(20) DEFAULT 'Active',
+    CreatedDate DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Example_Dept FOREIGN KEY (DepartmentID)
+        REFERENCES Departments(DepartmentID)
+        ON DELETE SET NULL
+);`
+            }
+          ]
+        }
+      }
+    },
+    queryOptimization: {
+      title: "Query Optimization",
+      icon: "⚡",
+      topics: {
+        filtering: {
+          title: "Filtering and WHERE Clause Optimization",
+          content: `Efficient filtering is crucial for query performance. Proper use of the WHERE clause can dramatically reduce query execution time.
+
+**Best Practices for Filtering:**
+
+**1. Filter Early**
+Apply WHERE clauses as early as possible to reduce the dataset size.
+
+**2. Use Appropriate Indexes**
+Ensure filtered columns have appropriate indexes.
+
+**3. Avoid Functions on Indexed Columns**
+Functions prevent index usage (see SARGability section).
+
+**4. Use EXISTS instead of IN for subqueries**
+EXISTS can be faster as it stops searching once a match is found.
+
+**5. Filter on Most Selective Columns First**
+Start with columns that filter out the most rows.
+
+**6. Be Careful with OR Conditions**
+Multiple OR conditions can prevent index usage. Consider UNION instead.
+
+**7. Use BETWEEN for Ranges**
+More efficient than separate >= and <= conditions.`,
+          examples: [
+            {
+              title: "Efficient Filtering Techniques",
+              code: `-- BAD: Filtering after JOIN (processes all rows first)
+SELECT e.FirstName, e.LastName, d.DepartmentName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE e.Salary > 70000;
+
+-- GOOD: Filter before JOIN using subquery or CTE
+WITH FilteredEmployees AS (
+    SELECT EmployeeID, FirstName, LastName, DepartmentID
+    FROM Employees
+    WHERE Salary > 70000
+)
+SELECT fe.FirstName, fe.LastName, d.DepartmentName
+FROM FilteredEmployees fe
+INNER JOIN Departments d ON fe.DepartmentID = d.DepartmentID;
+
+-- EXISTS vs IN for subqueries
+-- BAD: IN with large subquery
+SELECT FirstName, LastName
+FROM Employees
+WHERE EmployeeID IN (
+    SELECT EmployeeID FROM LargeTable WHERE Condition = 1
+);
+
+-- GOOD: EXISTS (stops at first match)
+SELECT FirstName, LastName
+FROM Employees e
+WHERE EXISTS (
+    SELECT 1 FROM LargeTable lt 
+    WHERE lt.EmployeeID = e.EmployeeID AND lt.Condition = 1
+);
+
+-- Handling NULL values efficiently
+-- BAD: OR condition for NULL
+SELECT * FROM Employees
+WHERE ManagerID = 5 OR ManagerID IS NULL;
+
+-- GOOD: Use ISNULL or COALESCE
+SELECT * FROM Employees
+WHERE ISNULL(ManagerID, -1) IN (5, -1);`
+            },
+            {
+              title: "Optimizing OR Conditions",
+              code: `-- BAD: Multiple OR conditions (may not use indexes efficiently)
+SELECT FirstName, LastName, Salary
+FROM Employees
+WHERE DepartmentID = 1 
+   OR DepartmentID = 2 
+   OR DepartmentID = 3;
+
+-- GOOD: Use IN operator
+SELECT FirstName, LastName, Salary
+FROM Employees
+WHERE DepartmentID IN (1, 2, 3);
+
+-- For complex OR conditions, consider UNION
+-- BAD: Complex OR logic
+SELECT * FROM Employees
+WHERE (DepartmentID = 1 AND Salary > 70000)
+   OR (DepartmentID = 2 AND Salary > 60000);
+
+-- GOOD: UNION with separate optimized queries
+SELECT * FROM Employees
+WHERE DepartmentID = 1 AND Salary > 70000
+UNION ALL
+SELECT * FROM Employees
+WHERE DepartmentID = 2 AND Salary > 60000;
+
+-- Dynamic filtering with optional parameters
+DECLARE @DeptID INT = NULL;
+DECLARE @MinSalary DECIMAL(10,2) = NULL;
+
+-- BAD: OR conditions for optional parameters
+SELECT * FROM Employees
+WHERE (@DeptID IS NULL OR DepartmentID = @DeptID)
+  AND (@MinSalary IS NULL OR Salary >= @MinSalary);
+
+-- GOOD: Dynamic SQL or use OPTION (RECOMPILE)
+SELECT * FROM Employees
+WHERE DepartmentID = ISNULL(@DeptID, DepartmentID)
+  AND Salary >= ISNULL(@MinSalary, Salary)
+OPTION (RECOMPILE);`
+            }
+          ]
+        },
+        sargability: {
+          title: "SARGability - Search ARGument ABLE",
+          content: `SARGability refers to the ability of SQL Server to use indexes effectively. A query is considered SARG able when the WHERE clause can be optimized using indexes.
+
+**What Makes a Query Non-SARGable:**
+• Using functions on indexed columns in WHERE clause
+• Implicit data type conversions
+• Using wildcard at the beginning of LIKE pattern
+• Using NOT IN or <> operators
+• Mathematical operations on indexed columns
+
+**Why SARGability Matters:**
+Non-SARGable queries force table scans instead of index seeks, dramatically reducing performance on large tables.
+
+**Making Queries SARGable:**
+• Move functions from WHERE clause to the comparison value
+• Ensure data types match between columns and parameters
+• Restructure LIKE patterns when possible
+• Use EXISTS instead of NOT IN
+• Rewrite mathematical expressions`,
+          examples: [
+            {
+              title: "Function Usage - Non-SARGable vs SARGable",
+              code: `-- NON-SARGABLE: Function on indexed column
+SELECT * FROM Employees
+WHERE YEAR(HireDate) = 2020;
+
+-- SARGABLE: Rewrite without function
+SELECT * FROM Employees
+WHERE HireDate >= '2020-01-01' AND HireDate < '2021-01-01';
+
+-- NON-SARGABLE: UPPER function
+SELECT * FROM Employees
+WHERE UPPER(LastName) = 'SAHUKARI';
+
+-- SARGABLE: Use computed column with index, or change data
+SELECT * FROM Employees
+WHERE LastName = 'Sahukari'; -- Assuming proper case in DB
+
+-- NON-SARGABLE: LEFT function
+SELECT * FROM Employees
+WHERE LEFT(Email, 5) = 'pavan';
+
+-- SARGABLE: Use LIKE with trailing wildcard
+SELECT * FROM Employees
+WHERE Email LIKE 'pavan%';
+
+-- NON-SARGABLE: Mathematical operation
+SELECT * FROM Employees
+WHERE Salary * 12 > 1000000;
+
+-- SARGABLE: Move calculation to the right side
+SELECT * FROM Employees
+WHERE Salary > 1000000 / 12;
+
+-- NON-SARGABLE: SUBSTRING
+SELECT * FROM Employees
+WHERE SUBSTRING(Phone, 1, 3) = '555';
+
+-- SARGABLE: Use LIKE
+SELECT * FROM Employees
+WHERE Phone LIKE '555%';`
+            },
+            {
+              title: "Data Type Conversions and Implicit Casts",
+              code: `-- Create table with proper types
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    OrderNumber VARCHAR(20),
+    OrderDate DATE,
+    CustomerID INT
+);
+
+-- NON-SARGABLE: Implicit conversion (INT to VARCHAR)
+DECLARE @OrderNum VARCHAR(20) = '12345';
+SELECT * FROM Orders
+WHERE OrderID = @OrderNum; -- INT compared to VARCHAR
+
+-- SARGABLE: Explicit conversion or matching types
+SELECT * FROM Orders
+WHERE OrderID = CAST(@OrderNum AS INT);
+
+-- NON-SARGABLE: VARCHAR compared to NVARCHAR
+SELECT * FROM Employees
+WHERE Email = N'pavan@company.com'; -- NVARCHAR literal
+
+-- SARGABLE: Match data types
+SELECT * FROM Employees
+WHERE Email = 'pavan@company.com'; -- VARCHAR literal
+
+-- NON-SARGABLE: Date comparison with string
+SELECT * FROM Employees
+WHERE HireDate = '1/15/2020'; -- Ambiguous format
+
+-- SARGABLE: Use proper date format
+SELECT * FROM Employees
+WHERE HireDate = '2020-01-15'; -- ISO format
+
+-- Check for implicit conversions in execution plan
+-- Look for CONVERT_IMPLICIT warnings`
+            },
+            {
+              title: "LIKE Patterns and Wildcard Optimization",
+              code: `-- NON-SARGABLE: Leading wildcard
+SELECT * FROM Employees
+WHERE LastName LIKE '%kumar%'; -- Cannot use index
+
+-- SARGABLE: Trailing wildcard only
+SELECT * FROM Employees
+WHERE LastName LIKE 'Kumar%'; -- Can use index
+
+-- Hybrid approach: Full-text search for leading wildcards
+-- Create full-text index first
+CREATE FULLTEXT INDEX ON Employees(LastName)
+KEY INDEX PK_Employees;
+
+-- Use CONTAINS for better performance
+SELECT * FROM Employees
+WHERE CONTAINS(LastName, 'kumar');
+
+-- Multiple LIKE patterns
+-- NON-SARGABLE:
+SELECT * FROM Employees
+WHERE Email LIKE '%@gmail.com' OR Email LIKE '%@yahoo.com';
+
+-- SARGABLE: If possible, restructure
+SELECT * FROM Employees
+WHERE Email LIKE '%@gmail.com'
+UNION ALL
+SELECT * FROM Employees
+WHERE Email LIKE '%@yahoo.com';
+
+-- Pattern matching with specific positions
+-- SARGABLE: Character in specific position
+SELECT * FROM Employees
+WHERE Phone LIKE '555-____-____'; -- Can use index partially`
+            },
+            {
+              title: "Negative Conditions and NOT",
+              code: `-- NON-SARGABLE: NOT IN
+SELECT * FROM Employees
+WHERE DepartmentID NOT IN (1, 2, 3);
+
+-- SARGABLE: LEFT JOIN with NULL check
+SELECT e.*
+FROM Employees e
+LEFT JOIN (SELECT DISTINCT DepartmentID FROM 
+    (VALUES (1), (2), (3)) AS D(DepartmentID)
+) AS ExcludeDepts ON e.DepartmentID = ExcludeDepts.DepartmentID
+WHERE ExcludeDepts.DepartmentID IS NULL;
+
+-- Or use NOT EXISTS
+SELECT * FROM Employees e
+WHERE NOT EXISTS (
+    SELECT 1 FROM (VALUES (1), (2), (3)) AS D(DeptID)
+    WHERE D.DeptID = e.DepartmentID
+);
+
+-- NON-SARGABLE: <> operator
+SELECT * FROM Employees
+WHERE Status <> 'Inactive';
+
+-- SARGABLE: Use positive condition
+SELECT * FROM Employees
+WHERE Status = 'Active';
+
+-- NON-SARGABLE: NOT LIKE
+SELECT * FROM Employees
+WHERE Email NOT LIKE '%@company.com';
+
+-- SARGABLE: Restructure if possible based on known patterns
+SELECT * FROM Employees
+WHERE Email LIKE '%@gmail.com'
+   OR Email LIKE '%@yahoo.com'
+   OR Email LIKE '%@hotmail.com';`
+            },
+            {
+              title: "Testing SARGability with Execution Plans",
+              code: `-- Enable execution plan
+SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+
+-- Non-SARGable query - look for Table Scan
+SELECT * FROM Employees
+WHERE YEAR(HireDate) = 2020;
+
+-- Check execution plan:
+-- - Table Scan or Index Scan = Non-SARGable
+-- - Index Seek = SARGable
+
+-- SARGable alternative
+SELECT * FROM Employees
+WHERE HireDate >= '2020-01-01' AND HireDate < '2021-01-01';
+
+-- Compare logical reads
+-- Lower logical reads = better performance
+
+SET STATISTICS IO OFF;
+SET STATISTICS TIME OFF;
+
+-- View estimated vs actual rows
+-- Large discrepancies indicate statistics issues
+
+-- Create computed column for non-SARGable patterns
+ALTER TABLE Employees
+ADD HireYear AS YEAR(HireDate) PERSISTED;
+
+CREATE INDEX IX_Employees_HireYear ON Employees(HireYear);
+
+-- Now this becomes SARGable
+SELECT * FROM Employees
+WHERE HireYear = 2020;`
+            }
+          ]
+        },
+        joins: {
+          title: "Joins - Logical vs Physical",
+          content: `Joins combine rows from two or more tables based on related columns. Understanding both logical joins (what you write) and physical joins (how SQL executes) is crucial for optimization.
+
+**Logical Joins (What You Write):**
+• **INNER JOIN**: Returns matching rows from both tables
+• **LEFT (OUTER) JOIN**: All rows from left table + matching from right
+• **RIGHT (OUTER) JOIN**: All rows from right table + matching from left
+• **FULL (OUTER) JOIN**: All rows from both tables
+• **CROSS JOIN**: Cartesian product of both tables
+• **SELF JOIN**: Table joined with itself
+
+**Physical Joins (How SQL Executes):**
+
+**1. Nested Loop Join**
+• Best for: Small datasets, inequalities (>, <)
+• How it works: For each row in outer table, scan inner table
+• Performance: O(n * m) - can be slow for large tables
+• When used: Small outer table, indexed inner table
+
+**2. Hash Join**
+• Best for: Large datasets, equality conditions
+• How it works: Build hash table from smaller input, probe with larger
+• Performance: O(n + m) - very efficient for large tables
+• When used: No suitable indexes, large result sets
+
+**3. Merge Join**
+• Best for: Large sorted datasets, equality conditions
+• How it works: Both inputs sorted, then merged
+• Performance: O(n + m) - efficient if already sorted
+• When used: Both inputs sorted (indexed), equality predicates`,
+          examples: [
+            {
+              title: "INNER JOIN - Matching Records Only",
+              code: `-- Basic INNER JOIN
+SELECT 
+    e.FirstName,
+    e.LastName,
+    e.Salary,
+    d.DepartmentName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+
+-- Multiple INNER JOINs
+SELECT 
+    e.FirstName + ' ' + e.LastName AS EmployeeName,
+    d.DepartmentName,
+    m.FirstName + ' ' + m.LastName AS ManagerName,
+    p.ProjectName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+LEFT JOIN Employees m ON e.ManagerID = m.EmployeeID
+INNER JOIN ProjectAssignments pa ON e.EmployeeID = pa.EmployeeID
+INNER JOIN Projects p ON pa.ProjectID = p.ProjectID
+WHERE e.IsActive = 1;
+
+-- INNER JOIN with aggregate functions
+SELECT 
+    d.DepartmentName,
+    COUNT(e.EmployeeID) AS TotalEmployees,
+    AVG(e.Salary) AS AverageSalary,
+    MAX(e.Salary) AS HighestSalary,
+    MIN(e.Salary) AS LowestSalary
+FROM Departments d
+INNER JOIN Employees e ON d.DepartmentID = e.DepartmentID
+GROUP BY d.DepartmentName
+HAVING COUNT(e.EmployeeID) > 5
+ORDER BY AverageSalary DESC;
+
+-- INNER JOIN with filtering
+SELECT 
+    e.FirstName,
+    e.LastName,
+    e.Salary,
+    d.DepartmentName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE e.Salary > 70000
+  AND d.Location = 'Hyderabad'
+  AND e.HireDate >= '2020-01-01';`
+            },
+            {
+              title: "LEFT JOIN - All from Left + Matching from Right",
+              code: `-- Basic LEFT JOIN
+SELECT 
+    e.FirstName,
+    e.LastName,
+    d.DepartmentName
+FROM Employees e
+LEFT JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+-- Returns all employees, even those without departments
+
+-- Finding unmatched records
+SELECT 
+    e.FirstName,
+    e.LastName,
+    e.DepartmentID
+FROM Employees e
+LEFT JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE d.DepartmentID IS NULL;
+-- Employees without valid departments
+
+-- Self-referencing LEFT JOIN (employees and their managers)
+SELECT 
+    e.FirstName + ' ' + e.LastName AS Employee,
+    e.Salary AS EmployeeSalary,
+    ISNULL(m.FirstName + ' ' + m.LastName, 'No Manager') AS Manager,
+    m.Salary AS ManagerSalary
+FROM Employees e
+LEFT JOIN Employees m ON e.ManagerID = m.EmployeeID
+ORDER BY e.FirstName;
+
+-- LEFT JOIN with aggregates
+SELECT 
+    d.DepartmentName,
+    COUNT(e.EmployeeID) AS EmployeeCount,
+    ISNULL(SUM(e.Salary), 0) AS TotalSalary
+FROM Departments d
+LEFT JOIN Employees e ON d.DepartmentID = e.DepartmentID
+GROUP BY d.DepartmentID, d.DepartmentName
+ORDER BY EmployeeCount DESC;
+-- Shows all departments, even empty ones
+
+-- Multiple LEFT JOINs
+SELECT 
+    e.FirstName + ' ' + e.LastName AS Employee,
+    d.DepartmentName,
+    m.FirstName + ' ' + m.LastName AS Manager,
+    COUNT(pa.ProjectID) AS ProjectCount
+FROM Employees e
+LEFT JOIN Departments d ON e.DepartmentID = d.DepartmentID
+LEFT JOIN Employees m ON e.ManagerID = m.EmployeeID
+LEFT JOIN ProjectAssignments pa ON e.EmployeeID = pa.EmployeeID
+GROUP BY e.EmployeeID, e.FirstName, e.LastName, d.DepartmentName, 
+         m.FirstName, m.LastName;`
+            },
+            {
+              title: "RIGHT JOIN and FULL JOIN",
+              code: `-- RIGHT JOIN (less common, opposite of LEFT JOIN)
+SELECT 
+    e.FirstName,
+    e.LastName,
+    d.DepartmentName
+FROM Employees e
+RIGHT JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+-- Returns all departments, even those without employees
+
+-- Same query as LEFT JOIN (more readable)
+SELECT 
+    e.FirstName,
+    e.LastName,
+    d.DepartmentName
+FROM Departments d
+LEFT JOIN Employees e ON d.DepartmentID = e.DepartmentID;
+
+-- FULL OUTER JOIN - All records from both tables
+SELECT 
+    ISNULL(e.FirstName + ' ' + e.LastName, 'No Employee') AS Employee,
+    ISNULL(d.DepartmentName, 'No Department') AS Department
+FROM Employees e
+FULL OUTER JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+
+-- Finding mismatches in both directions
+SELECT 
+    e.EmployeeID,
+    e.FirstName,
+    e.LastName,
+    e.DepartmentID AS EmpDeptID,
+    d.DepartmentID AS DeptID,
+    d.DepartmentName,
+    CASE 
+        WHEN e.EmployeeID IS NULL THEN 'Department without employees'
+        WHEN d.DepartmentID IS NULL THEN 'Employee without department'
+        ELSE 'Matched'
+    END AS Status
+FROM Employees e
+FULL OUTER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE e.EmployeeID IS NULL OR d.DepartmentID IS NULL;`
+            },
+            {
+              title: "CROSS JOIN and SELF JOIN",
+              code: `-- CROSS JOIN - Cartesian product
+-- Use case: Generate combinations
+SELECT 
+    e.FirstName + ' ' + e.LastName AS Employee,
+    p.ProjectName
+FROM Employees e
+CROSS JOIN Projects p;
+-- Creates every possible employee-project combination
+
+-- Practical CROSS JOIN: Date dimension
+DECLARE @StartDate DATE = '2024-01-01';
+DECLARE @EndDate DATE = '2024-12-31';
+
+WITH Dates AS (
+    SELECT @StartDate AS DateValue
+    UNION ALL
+    SELECT DATEADD(DAY, 1, DateValue)
+    FROM Dates
+    WHERE DateValue < @EndDate
+)
+SELECT 
+    d.DateValue,
+    e.FirstName + ' ' + e.LastName AS Employee
+FROM Dates d
+CROSS JOIN Employees e
+WHERE e.DepartmentID = 1
+OPTION (MAXRECURSION 366);
+
+-- SELF JOIN - Find employees in same department
+SELECT 
+    e1.FirstName + ' ' + e1.LastName AS Employee1,
+    e2.FirstName + ' ' + e2.LastName AS Employee2,
+    d.DepartmentName
+FROM Employees e1
+INNER JOIN Employees e2 ON e1.DepartmentID = e2.DepartmentID 
+    AND e1.EmployeeID < e2.EmployeeID
+INNER JOIN Departments d ON e1.DepartmentID = d.DepartmentID
+ORDER BY d.DepartmentName, e1.FirstName;
+
+-- SELF JOIN - Employee hierarchy
+SELECT 
+    e.FirstName + ' ' + e.LastName AS Employee,
+    m.FirstName + ' ' + m.LastName AS Manager,
+    sm.FirstName + ' ' + sm.LastName AS ManagersManager
+FROM Employees e
+LEFT JOIN Employees m ON e.ManagerID = m.EmployeeID
+LEFT JOIN Employees sm ON m.ManagerID = sm.EmployeeID
+ORDER BY e.FirstName;
+
+-- SELF JOIN - Find employees earning more than their manager
+SELECT 
+    e.FirstName + ' ' + e.LastName AS Employee,
+    e.Salary AS EmployeeSalary,
+    m.FirstName + ' ' + m.LastName AS Manager,
+    m.Salary AS ManagerSalary,
+    e.Salary - m.Salary AS SalaryDifference
+FROM Employees e
+INNER JOIN Employees m ON e.ManagerID = m.EmployeeID
+WHERE e.Salary > m.Salary;`
+            },
+            {
+              title: "Physical Joins - Understanding Execution",
+              code: `-- NESTED LOOP JOIN
+-- Best for: Small outer table, indexed inner table
+-- Enable actual execution plan to see physical join type
+
+-- Query that typically uses Nested Loop
+SELECT e.FirstName, e.LastName, d.DepartmentName
+FROM (
+    SELECT TOP 10 * FROM Employees WHERE Salary > 90000
+) e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+-- Small outer input favors nested loop
+
+-- HASH JOIN
+-- Best for: Large tables, no suitable indexes
+-- Force hash join (for demonstration only)
+SELECT e.FirstName, e.LastName, d.DepartmentName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+OPTION (HASH JOIN);
+
+-- Query that naturally uses Hash Join
+SELECT 
+    e.FirstName,
+    e.LastName,
+    la.Activity,
+    la.ActivityDate
+FROM Employees e
+INNER JOIN LargeActivityLog la ON e.Email = la.UserEmail
+-- Likely uses hash join due to string comparison on large table
+
+-- MERGE JOIN
+-- Best for: Sorted inputs (indexed columns)
+-- Create indexes for merge join
+CREATE INDEX IX_Emp_Dept ON Employees(DepartmentID);
+CREATE INDEX IX_Dept_ID ON Departments(DepartmentID);
+
+-- Query that uses Merge Join
+SELECT e.FirstName, e.LastName, d.DepartmentName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+ORDER BY e.DepartmentID;
+-- Likely uses merge join due to sorted inputs
+
+-- Compare join performance
+SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+
+-- Test different join hints
+SELECT e.*, d.*
+FROM Employees e
+INNER LOOP JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+
+SELECT e.*, d.*
+FROM Employees e
+INNER HASH JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+
+SELECT e.*, d.*
+FROM Employees e
+INNER MERGE JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+
+SET STATISTICS IO OFF;
+SET STATISTICS TIME OFF;
+
+-- Note: Don't force join types in production - let optimizer decide!`
+            },
+            {
+              title: "Join Optimization Tips",
+              code: `-- 1. Join on indexed columns
+CREATE INDEX IX_Emp_DeptID ON Employees(DepartmentID);
+CREATE INDEX IX_Proj_EmpID ON Projects(EmployeeID);
+
+-- 2. Filter before joining (reduce dataset)
+-- BAD: Filter after join
+SELECT e.FirstName, d.DepartmentName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE e.Salary > 80000;
+
+-- GOOD: Use CTE or subquery to filter first
+WITH HighEarners AS (
+    SELECT EmployeeID, FirstName, DepartmentID
+    FROM Employees
+    WHERE Salary > 80000
+)
+SELECT he.FirstName, d.DepartmentName
+FROM HighEarners he
+INNER JOIN Departments d ON he.DepartmentID = d.DepartmentID;
+
+-- 3. Join order matters (smallest table first)
+-- Optimizer usually handles this, but be aware
+SELECT e.FirstName, d.DepartmentName, p.ProjectName
+FROM Projects p
+INNER JOIN ProjectAssignments pa ON p.ProjectID = pa.ProjectID
+INNER JOIN Employees e ON pa.EmployeeID = e.EmployeeID
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+
+-- 4. Use appropriate join types
+-- Don't use LEFT JOIN if you need INNER JOIN
+-- BAD: Unnecessary LEFT JOIN
+SELECT e.FirstName, d.DepartmentName
+FROM Employees e
+LEFT JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE d.DepartmentID IS NOT NULL; -- Makes it an INNER JOIN anyway
+
+-- GOOD: Use INNER JOIN directly
+SELECT e.FirstName, d.DepartmentName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID;
+
+-- 5. Avoid joining on calculated columns
+-- BAD:
+SELECT * FROM Employees e
+INNER JOIN Departments d ON YEAR(e.HireDate) = d.DepartmentYear;
+
+-- GOOD: Calculate once or use indexed computed column
+SELECT * FROM Employees e
+INNER JOIN Departments d ON e.HireYear = d.DepartmentYear;
+
+-- 6. Statistics matter - keep them updated
+UPDATE STATISTICS Employees WITH FULLSCAN;
+UPDATE STATISTICS Departments WITH FULLSCAN;`
+            }
+          ]
+        }
+      }
+    }
+  };
+
+  const interviewQuestions = [
+    {
+      category: "Basics",
+      questions: [
+        {
+          q: "What is the difference between TRUNCATE and DELETE?",
+          a: "TRUNCATE removes all rows from a table without logging individual row deletions. It's faster, resets identity columns, and cannot be rolled back easily. DELETE removes rows one by one, can have a WHERE clause, logs each deletion, and can be rolled back. TRUNCATE is a DDL command, DELETE is DML."
+        },
+        {
+          q: "Explain PRIMARY KEY vs UNIQUE constraint.",
+          a: "PRIMARY KEY: Only one per table, cannot be NULL, creates clustered index by default, uniquely identifies each record. UNIQUE: Multiple allowed per table, can have one NULL value, creates non-clustered index, ensures column values are unique. Both enforce uniqueness but PRIMARY KEY is the main identifier."
+        },
+        {
+          q: "What is normalization? Explain different normal forms.",
+          a: "Normalization is organizing database to reduce redundancy. 1NF: Atomic values, no repeating groups. 2NF: 1NF + no partial dependencies. 3NF: 2NF + no transitive dependencies. BCNF: Every determinant is a candidate key. 4NF: No multi-valued dependencies. 5NF: No join dependencies. Most databases normalize to 3NF."
+        },
+        {
+          q: "What is the difference between WHERE and HAVING?",
+          a: "WHERE filters rows before grouping and cannot use aggregate functions. HAVING filters groups after GROUP BY and can use aggregate functions. Example: WHERE Salary > 50000 filters individual rows, HAVING AVG(Salary) > 50000 filters groups. WHERE is processed first, then GROUP BY, then HAVING."
+        },
+        {
+          q: "Explain ACID properties.",
+          a: "Atomicity: Transaction completes fully or not at all. Consistency: Database remains in valid state before and after transaction. Isolation: Concurrent transactions don't interfere. Durability: Committed changes are permanent even after system failure. These ensure reliable transaction processing."
+        }
+      ]
+    },
+    {
+      category: "Intermediate",
+      questions: [
+        {
+          q: "What are indexes? Explain clustered vs non-clustered.",
+          a: "Indexes speed up data retrieval. Clustered index: Sorts and stores data rows physically, only one per table, typically on PRIMARY KEY. Non-clustered index: Separate structure with pointers to data, multiple allowed, slower than clustered for range queries but faster for lookups. Clustered determines physical order."
+        },
+        {
+          q: "Explain different types of joins with examples.",
+          a: "INNER JOIN: Returns matching rows from both tables. LEFT JOIN: All rows from left + matching from right. RIGHT JOIN: All rows from right + matching from left. FULL JOIN: All rows from both. CROSS JOIN: Cartesian product. SELF JOIN: Table joined with itself. Each serves different data retrieval needs."
+        },
+        {
+          q: "What is a subquery? Types of subqueries?",
+          a: "A query nested inside another query. Types: 1) Single-row: Returns one row. 2) Multi-row: Returns multiple rows (use IN, ANY, ALL). 3) Multi-column: Returns multiple columns. 4) Correlated: References outer query, executes for each row. 5) Non-correlated: Independent of outer query, executes once."
+        },
+        {
+          q: "Explain the difference between UNION and UNION ALL.",
+          a: "UNION combines result sets and removes duplicates, sorting data which is slower. UNION ALL combines result sets keeping all duplicates, faster as no sorting/comparison. Both require same number of columns with compatible data types. Use UNION ALL when duplicates don't matter for better performance."
+        },
+        {
+          q: "What are CTEs (Common Table Expressions)?",
+          a: "Temporary named result set that exists within a single query execution. Syntax: WITH CTE_Name AS (SELECT...) SELECT * FROM CTE_Name. Benefits: Improved readability, recursive queries, multiple references, alternative to temp tables. CTEs are not stored and exist only during query execution."
+        },
+        {
+          q: "What is the difference between RANK(), DENSE_RANK(), and ROW_NUMBER()?",
+          a: "ROW_NUMBER(): Sequential numbers (1,2,3,4). RANK(): Same rank for ties, skips next (1,2,2,4). DENSE_RANK(): Same rank for ties, no gaps (1,2,2,3). Example with salaries 100,90,90,80: ROW_NUMBER=1,2,3,4; RANK=1,2,2,4; DENSE_RANK=1,2,2,3."
+        }
+      ]
+    },
+    {
+      category: "Advanced",
+      questions: [
+        {
+          q: "What is query optimization? Key techniques?",
+          a: "Improving query performance. Techniques: 1) Proper indexing 2) Avoid SELECT * 3) Use WHERE to filter early 4) Avoid functions on indexed columns 5) Use EXISTS over IN 6) Optimize joins 7) Update statistics 8) Avoid cursors 9) Use appropriate data types 10) Partition large tables. Analyze execution plans to identify bottlenecks."
+        },
+        {
+          q: "Explain execution plan and how to read it.",
+          a: "Visual representation of query execution steps. Key elements: 1) Table Scan (bad): Reads all rows 2) Index Seek (good): Uses index 3) Index Scan: Scans entire index 4) Join types 5) Cost percentages. Read right-to-left, top-to-bottom. Look for: high costs, scans vs seeks, missing indexes, warnings. Use SET STATISTICS IO ON for detailed analysis."
+        },
+        {
+          q: "What are window functions? Explain with examples.",
+          a: "Perform calculations across row sets without grouping. Syntax: FUNCTION() OVER (PARTITION BY... ORDER BY...). Examples: ROW_NUMBER(), RANK(), SUM() OVER(), LAG(), LEAD(), FIRST_VALUE(), LAST_VALUE(). Unlike GROUP BY, window functions retain all rows. Useful for running totals, rankings, comparisons with previous/next rows."
+        },
+        {
+          q: "Explain stored procedures vs functions.",
+          a: "Stored Procedures: Can perform DML (INSERT/UPDATE/DELETE), return multiple values/result sets, can use TRY-CATCH, called with EXEC, no return type required. Functions: Cannot perform DML (except table variables), return single value or table, no TRY-CATCH, called in SELECT, must have return type. Use procedures for operations, functions for calculations."
+        },
+        {
+          q: "What is deadlock? How to prevent it?",
+          a: "Two transactions wait for each other's locked resources. Prevention: 1) Access objects in same order 2) Keep transactions short 3) Use lower isolation levels when possible 4) Use WITH (NOLOCK) hint carefully 5) Proper indexing 6) Handle deadlocks with TRY-CATCH and retry logic. SQL Server automatically detects and kills one transaction as deadlock victim."
+        },
+        {
+          q: "Explain different isolation levels.",
+          a: "Control transaction visibility: READ UNCOMMITTED: Dirty reads possible, no locks. READ COMMITTED: Default, prevents dirty reads. REPEATABLE READ: Prevents non-repeatable reads, holds locks. SERIALIZABLE: Highest isolation, prevents phantoms, maximum locks. SNAPSHOT: Row versioning, no locks, optimistic concurrency. Higher isolation = more consistency but less concurrency."
+        },
+        {
+          q: "What is database normalization vs denormalization?",
+          a: "Normalization: Organizing data to reduce redundancy using normal forms (1NF-5NF). Pros: Data integrity, less redundancy, easier updates. Cons: More joins, slower queries. Denormalization: Intentionally adding redundancy. Pros: Faster reads, fewer joins. Cons: Data anomalies, harder updates. Use normalization for OLTP, denormalization for OLAP/reporting."
+        },
+        {
+          q: "Explain partitioning and its benefits.",
+          a: "Dividing large tables into smaller pieces. Types: Range (dates), List (categories), Hash (distribution). Benefits: 1) Improved query performance 2) Easier maintenance 3) Parallel processing 4) Faster backup/restore 5) Partition elimination in queries. Example: Partition sales table by year. Each partition can be on different filegroups."
+        },
+        {
+          q: "What are triggers? Types and use cases?",
+          a: "Special stored procedures that automatically execute on events. Types: AFTER triggers (after DML), INSTEAD OF triggers (replace DML). DML triggers: INSERT, UPDATE, DELETE. DDL triggers: CREATE, ALTER, DROP. Use cases: Audit logging, enforcing business rules, maintaining denormalized data, preventing invalid operations. Use sparingly as they can impact performance."
+        },
+        {
+          q: "Explain TempDB and its importance.",
+          a: "System database for temporary objects. Stores: temp tables (#temp), table variables, internal worktables for sorting/hashing, version store for snapshot isolation, DBCC results. Performance tips: Multiple data files (one per CPU core), proper sizing, fast storage. TempDB issues cause system-wide problems. Recreated on restart."
+        }
+      ]
+    },
+    {
+      category: "Performance Tuning",
+      questions: [
+        {
+          q: "What is SARGability and why does it matter?",
+          a: "Search ARGument able - ability to use indexes efficiently. Non-SARGable: functions on columns (WHERE YEAR(Date)=2024), leading wildcards (LIKE '%text'), implicit conversions. SARGable: move functions to comparison side, use trailing wildcards, match data types. SARGable queries use index seeks; non-SARGable use table scans. Critical for performance on large tables."
+        },
+        {
+          q: "How do you identify and fix slow queries?",
+          a: "1) Enable execution plan, check for scans/high costs. 2) SET STATISTICS IO/TIME ON. 3) Check missing index suggestions. 4) Look for implicit conversions. 5) Analyze join orders. 6) Check parameter sniffing. 7) Update statistics. 8) Rewrite with CTEs/temp tables. 9) Consider indexed views. 10) Partition large tables. Focus on highest cost operations first."
+        },
+        {
+          q: "What is parameter sniffing?",
+          a: "SQL Server creates execution plan based on first parameter value. Problem when plan isn't optimal for other values. Example: Procedure with @City parameter, first call with 'New York' (many rows) creates scan plan, but 'SmallTown' (few rows) needs seek. Solutions: OPTION (RECOMPILE), OPTION (OPTIMIZE FOR), local variables, query hints."
+        },
+        {
+          q: "Explain index fragmentation and how to fix it.",
+          a: "Fragmentation occurs when logical order doesn't match physical order. Types: Internal (pages not full), External (logical order vs physical). Check with sys.dm_db_index_physical_stats. Solutions: REORGANIZE (< 30% fragmentation, online), REBUILD (> 30%, can be offline). Schedule regular maintenance. Impacts: slower range scans, more I/O, wasted space."
+        },
+        {
+          q: "What are statistics and why are they important?",
+          a: "Metadata about data distribution in columns/indexes. SQL Server uses statistics to estimate row counts and choose optimal execution plans. Outdated statistics lead to poor plans. Check with DBCC SHOW_STATISTICS. Update with UPDATE STATISTICS or AUTO_UPDATE_STATISTICS (enabled by default). Critical after large data changes. Include in maintenance plans."
+        }
+      ]
+    },
+    {
+      category: "Real-World Scenarios",
+      questions: [
+        {
+          q: "How would you find duplicate records in a table?",
+          a: "Method 1: GROUP BY with HAVING COUNT(*) > 1. Method 2: ROW_NUMBER() OVER (PARTITION BY key ORDER BY id) - where row_num > 1. Method 3: Self JOIN where different IDs have same data. Method 4: EXISTS with correlated subquery. Choice depends on whether you need all columns, specific duplicates, or just counts."
+        },
+        {
+          q: "How to handle large data imports efficiently?",
+          a: "1) Use BULK INSERT or BCP for large files. 2) Disable indexes before import, rebuild after. 3) Use batch processing (chunks of 10k-50k rows). 4) Set database to SIMPLE recovery during import. 5) Disable triggers temporarily. 6) Use table partitioning. 7) Consider SSIS for complex ETL. 8) Use TABLOCK hint. 9) Validate data before import."
+        },
+        {
+          q: "How would you implement soft delete?",
+          a: "Add IsDeleted BIT or DeletedDate DATETIME column. Instead of DELETE, UPDATE IsDeleted=1 or set DeletedDate. Modify queries: WHERE IsDeleted=0. Create indexed view for active records. Consider: archived data, storage costs, query complexity. Pros: Data recovery, audit trail. Cons: Larger tables, query modifications, unique constraint complexity."
+        },
+        {
+          q: "Explain how you would design an audit system.",
+          a: "Options: 1) Audit table with triggers (OLD_VALUE, NEW_VALUE, USER, DATE). 2) SQL Server Audit feature. 3) Change Data Capture (CDC). 4) Temporal tables (system-versioned). Consider: What to audit (DML, DDL, logins), performance impact, retention, compliance. Store: Who, What, When, Where, Old/New values. Separate audit database for security."
+        },
+        {
+          q: "How to optimize a query joining multiple large tables?",
+          a: "1) Check indexes on join columns. 2) Filter early with WHERE/CTE. 3) Use appropriate join types. 4) Check execution plan for hash vs merge joins. 5) Update statistics. 6) Consider indexed views for frequent queries. 7) Partition large tables. 8) Use temp tables for intermediate results. 9) Avoid SELECT *. 10) Consider denormalization for reporting."
+        }
+      ]
+    }
+  ];
+
+  const toggleSection = (section) => {
+    setExpandedSection(expandedSection === section ? null : section);
+    setExpandedTopic(null);
+  };
+
+  const toggleTopic = (topic) => {
+    setExpandedTopic(expandedTopic === topic ? null : topic);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Header */}
+      <header className="bg-black/30 backdrop-blur-md border-b border-purple-500/20 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Database className="w-8 h-8 text-purple-400" />
+              <div>
+                <h1 className="text-2xl font-bold text-white">SQL Mastery Hub</h1>
+                <p className="text-purple-300 text-sm">From Beginner to Expert</p>
+              </div>
+            </div>
+            
+            {/* Mobile menu button */}
+            <button 
+              className="md:hidden text-white"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+
+            {/* Desktop navigation */}
+            <nav className="hidden md:flex gap-6">
+              {[
+                { id: 'learn', label: 'Learn', icon: BookOpen },
+                { id: 'interview', label: 'Interview Prep', icon: Award },
+                { id: 'about', label: 'About Me', icon: User }
+              ].map(tab => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                      activeTab === tab.id
+                        ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50'
+                        : 'text-purple-200 hover:bg-purple-800/30'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Mobile navigation */}
+          {mobileMenuOpen && (
+            <nav className="md:hidden mt-4 flex flex-col gap-2">
+              {[
+                { id: 'learn', label: 'Learn', icon: BookOpen },
+                { id: 'interview', label: 'Interview Prep', icon: Award },
+                { id: 'about', label: 'About Me', icon: User }
+              ].map(tab => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                      activeTab === tab.id
+                        ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50'
+                        : 'text-purple-200 hover:bg-purple-800/30'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          )}
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Learn Tab */}
+        {activeTab === 'learn' && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 p-6 rounded-xl border border-purple-500/30">
+              <h2 className="text-3xl font-bold text-white mb-2">Welcome to SQL Mastery Hub</h2>
+              <p className="text-purple-200">
+                A comprehensive learning platform covering SQL from basic concepts to advanced optimization techniques.
+                Each topic includes detailed explanations and practical examples.
+              </p>
+            </div>
+
+            {Object.entries(learningContent).map(([sectionKey, section]) => (
+              <div key={sectionKey} className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-purple-500/30 overflow-hidden">
+                <button
+                  onClick={() => toggleSection(sectionKey)}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-purple-900/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{section.icon}</span>
+                    <h3 className="text-xl font-bold text-white">{section.title}</h3>
+                  </div>
+                  {expandedSection === sectionKey ? (
+                    <ChevronDown className="w-6 h-6 text-purple-400" />
+                  ) : (
+                    <ChevronRight className="w-6 h-6 text-purple-400" />
+                  )}
+                </button>
+
+                {expandedSection === sectionKey && (
+                  <div className="px-6 pb-4 space-y-2">
+                    {Object.entries(section.topics).map(([topicKey, topic]) => (
+                      <div key={topicKey} className="border border-purple-500/20 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleTopic(topicKey)}
+                          className="w-full px-4 py-3 flex items-center justify-between bg-slate-700/50 hover:bg-slate-700 transition-colors"
+                        >
+                          <span className="text-purple-200 font-medium">{topic.title}</span>
+                          {expandedTopic === topicKey ? (
+                            <ChevronDown className="w-5 h-5 text-purple-400" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5 text-purple-400" />
+                          )}
+                        </button>
+
+                        {expandedTopic === topicKey && (
+                          <div className="p-4 bg-slate-800/30 space-y-4">
+                            <div className="prose prose-invert max-w-none">
+                              <div className="text-gray-300 whitespace-pre-line leading-relaxed">
+                                {topic.content}
+                              </div>
+                            </div>
+
+                            {topic.examples && topic.examples.length > 0 && (
+                              <div className="space-y-4 mt-6">
+                                <h4 className="text-lg font-semibold text-purple-300 flex items-center gap-2">
+                                  <Code className="w-5 h-5" />
+                                  Code Examples
+                                </h4>
+                                {topic.examples.map((example, idx) => (
+                                  <div key={idx} className="bg-slate-900/80 rounded-lg overflow-hidden border border-purple-500/20">
+                                    <div className="bg-purple-900/30 px-4 py-2 border-b border-purple-500/20">
+                                      <span className="text-purple-200 font-medium">{example.title}</span>
+                                    </div>
+                                    <pre className="p-4 overflow-x-auto">
+                                      <code className="text-sm text-green-300">{example.code}</code>
+                                    </pre>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Interview Prep Tab */}
+        {activeTab === 'interview' && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 p-6 rounded-xl border border-blue-500/30">
+              <h2 className="text-3xl font-bold text-white mb-2">Interview Preparation</h2>
+              <p className="text-blue-200 mb-4">
+                300+ carefully curated interview questions with detailed answers covering all skill levels.
+              </p>
+              
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setQuizMode('qa')}
+                  className={`px-6 py-2 rounded-lg transition-all ${
+                    quizMode === 'qa'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                  }`}
+                >
+                  Q&A Mode
+                </button>
+                <button
+                  onClick={() => setQuizMode('quiz')}
+                  className={`px-6 py-2 rounded-lg transition-all ${
+                    quizMode === 'quiz'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                  }`}
+                >
+                  Quiz Mode
+                </button>
+              </div>
+            </div>
+
+            {quizMode === 'qa' ? (
+              // Q&A Mode
+              <div className="space-y-6">
+                {interviewQuestions.map((category, catIdx) => (
+                  <div key={catIdx} className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-blue-500/30 overflow-hidden">
+                    <div className="bg-blue-900/30 px-6 py-3 border-b border-blue-500/20">
+                      <h3 className="text-xl font-bold text-white">{category.category}</h3>
+                      <p className="text-blue-200 text-sm">{category.questions.length} questions</p>
+                    </div>
+                    <div className="p-6 space-y-4">
+                      {category.questions.map((item, qIdx) => (
+                        <div key={qIdx} className="bg-slate-700/50 rounded-lg p-4 border border-blue-500/20">
+                          <div className="flex items-start gap-3 mb-3">
+                            <span className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">
+                              {qIdx + 1}
+                            </span>
+                            <h4 className="text-purple-200 font-semibold text-lg">{item.q}</h4>
+                          </div>
+                          <div className="ml-11 text-gray-300 leading-relaxed bg-slate-800/50 p-4 rounded-lg">
+                            {item.a}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Quiz Mode
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-blue-500/30 p-8">
+                {currentQuiz < interviewQuestions.reduce((acc, cat) => acc + cat.questions.length, 0) ? (
+                  <>
+                    <div className="mb-6">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-blue-300">Question {currentQuiz + 1} / {interviewQuestions.reduce((acc, cat) => acc + cat.questions.length, 0)}</span>
+                        <span className="text-purple-300">Score: {score}</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all"
+                          style={{ width: `${(currentQuiz / interviewQuestions.reduce((acc, cat) => acc + cat.questions.length, 0)) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {(() => {
+                      let questionIndex = currentQuiz;
+                      let currentCategory = null;
+                      let currentQuestion = null;
+
+                      for (const category of interviewQuestions) {
+                        if (questionIndex < category.questions.length) {
+                          currentCategory = category;
+                          currentQuestion = category.questions[questionIndex];
+                          break;
+                        }
+                        questionIndex -= category.questions.length;
+                      }
+
+                      return (
+                        <>
+                          <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 p-6 rounded-lg mb-6 border border-blue-500/20">
+                            <span className="text-blue-300 text-sm font-medium">{currentCategory?.category}</span>
+                            <h3 className="text-2xl text-white font-semibold mt-2">{currentQuestion?.q}</h3>
+                          </div>
+
+                          {!showAnswer ? (
+                            <button
+                              onClick={() => setShowAnswer(true)}
+                              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
+                            >
+                              Show Answer
+                            </button>
+                          ) : (
+                            <>
+                              <div className="bg-slate-700/50 p-6 rounded-lg mb-6 border border-green-500/20">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <CheckCircle className="w-5 h-5 text-green-400" />
+                                  <span className="text-green-300 font-semibold">Answer:</span>
+                                </div>
+                                <p className="text-gray-300 leading-relaxed">{currentQuestion?.a}</p>
+                              </div>
+
+                              <div className="flex gap-4">
+                                <button
+                                  onClick={() => {
+                                    setScore(score + 1);
+                                    setCurrentQuiz(currentQuiz + 1);
+                                    setShowAnswer(false);
+                                  }}
+                                  className="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all"
+                                >
+                                  Got it right! ✓
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setCurrentQuiz(currentQuiz + 1);
+                                    setShowAnswer(false);
+                                  }}
+                                  className="flex-1 bg-slate-600 text-white py-3 rounded-lg font-semibold hover:bg-slate-700 transition-all"
+                                >
+                                  Next Question →
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <Award className="w-24 h-24 text-yellow-400 mx-auto mb-4" />
+                    <h3 className="text-3xl font-bold text-white mb-2">Quiz Complete!</h3>
+                    <p className="text-2xl text-purple-300 mb-6">
+                      Your Score: {score} / {interviewQuestions.reduce((acc, cat) => acc + cat.questions.length, 0)}
+                    </p>
+                    <p className="text-lg text-gray-300 mb-6">
+                      {score / interviewQuestions.reduce((acc, cat) => acc + cat.questions.length, 0) > 0.8 
+                        ? "Excellent work! You're ready for interviews! 🎉"
+                        : score / interviewQuestions.reduce((acc, cat) => acc + cat.questions.length, 0) > 0.6
+                        ? "Good job! Keep practicing to master these concepts. 💪"
+                        : "Keep learning! Review the topics and try again. 📚"}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setCurrentQuiz(0);
+                        setScore(0);
+                        setShowAnswer(false);
+                      }}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
+                    >
+                      Restart Quiz
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* About Me Tab */}
+        {activeTab === 'about' && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-purple-900/50 rounded-2xl border border-purple-500/30 overflow-hidden shadow-2xl">
+              <div className="relative h-32 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600">
+                <div className="absolute -bottom-16 left-8">
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 border-4 border-slate-900 flex items-center justify-center shadow-xl">
+                    <span className="text-5xl font-bold text-white">PK</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-20 px-8 pb-8">
+                <h2 className="text-4xl font-bold text-white mb-2">PavanKalyan Sahukari</h2>
+                <p className="text-xl text-purple-300 mb-6">.NET Developer</p>
+                
+                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                  <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/20">
+                    <h3 className="text-lg font-semibold text-purple-300 mb-4 flex items-center gap-2">
+                      <Award className="w-5 h-5" />
+                      Experience & Expertise
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-white font-medium">4+ Years in IT</p>
+                        <p className="text-gray-400 text-sm">Building robust enterprise applications</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {['.NET', 'C#', 'SQL Server', 'HTML', 'CSS', 'Java'].map(skill => (
+                          <span key={skill} className="px-3 py-1 bg-purple-600/30 text-purple-200 rounded-full text-sm border border-purple-500/30">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-800/50 rounded-xl p-6 border border-blue-500/20">
+                    <h3 className="text-lg font-semibold text-blue-300 mb-4 flex items-center gap-2">
+                      <Code className="w-5 h-5" />
+                      What I Do
+                    </h3>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                        <span>Design and develop scalable .NET applications</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                        <span>Database design and SQL optimization</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                        <span>Full-stack development with modern technologies</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                        <span>Performance tuning and code optimization</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 rounded-xl p-6 border border-purple-500/20">
+                  <h3 className="text-lg font-semibold text-purple-300 mb-4">About This Project</h3>
+                  <p className="text-gray-300 leading-relaxed mb-4">
+                    SQL Mastery Hub is a comprehensive learning platform I created to help developers master SQL Server. 
+                    Drawing from my experience as a .NET developer working extensively with MS SQL Server, I've compiled 
+                    everything from fundamental concepts to advanced optimization techniques. This platform covers DDL, DML, 
+                    query optimization, indexing strategies, and includes 300+ interview questions to help you prepare for 
+                    technical interviews.
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    Whether you're a beginner starting your SQL journey or an experienced developer looking to refine your 
+                    skills, this platform provides clear explanations, practical examples, and real-world scenarios.
+                  </p>
+                </div>
+
+                <div className="mt-8 flex items-center justify-center gap-6">
+                  <a
+                    href="mailto:pavankalyansahukari@gmail.com"
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                    Email Me
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/pavankalyan-sahukari-398448249"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition-all border border-purple-500/30"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" />
+                    </svg>
+                    LinkedIn
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-black/30 backdrop-blur-md border-t border-purple-500/20 mt-12 py-6">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-purple-200">
+            Created with 💜 by{' '}
+            <a 
+              href="https://www.linkedin.com/in/pavankalyan-sahukari-398448249"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-400 hover:text-purple-300 font-semibold underline decoration-purple-500/30 hover:decoration-purple-400 transition-all"
+            >
+              PavanKalyan Sahukari
+            </a>
+          </p>
+          <p className="text-gray-400 text-sm mt-2">
+            SQL Mastery Hub - Your complete SQL learning companion
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default SQLLearningApp;
